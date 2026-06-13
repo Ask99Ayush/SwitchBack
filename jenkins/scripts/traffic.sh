@@ -21,41 +21,59 @@ fi
 
 if [ "$TARGET" = "green" ]; then
 
-    aws elbv2 modify-listener \
-    --listener-arn "${ALB_LISTENER_ARN}" \
-    --default-actions Type=forward,ForwardConfig='{
-      "TargetGroups":[
+cat > action.json <<EOF
+[
+  {
+    "Type": "forward",
+    "ForwardConfig": {
+      "TargetGroups": [
         {
-          "TargetGroupArn":"'"${BLUE_TARGET_GROUP_ARN}"'",
-          "Weight":0
+          "TargetGroupArn": "${BLUE_TARGET_GROUP_ARN}",
+          "Weight": 0
         },
         {
-          "TargetGroupArn":"'"${GREEN_TARGET_GROUP_ARN}"'",
-          "Weight":100
+          "TargetGroupArn": "${GREEN_TARGET_GROUP_ARN}",
+          "Weight": 100
         }
       ]
-    }'
+    }
+  }
+]
+EOF
 
-    echo "Traffic switched to GREEN"
+aws elbv2 modify-listener \
+  --listener-arn "${ALB_LISTENER_ARN}" \
+  --default-actions file://action.json
+
+echo "Traffic switched to GREEN"
 
 elif [ "$TARGET" = "blue" ]; then
 
-    aws elbv2 modify-listener \
-    --listener-arn "${ALB_LISTENER_ARN}" \
-    --default-actions Type=forward,ForwardConfig='{
-      "TargetGroups":[
+cat > action.json <<EOF
+[
+  {
+    "Type": "forward",
+    "ForwardConfig": {
+      "TargetGroups": [
         {
-          "TargetGroupArn":"'"${BLUE_TARGET_GROUP_ARN}"'",
-          "Weight":100
+          "TargetGroupArn": "${BLUE_TARGET_GROUP_ARN}",
+          "Weight": 100
         },
         {
-          "TargetGroupArn":"'"${GREEN_TARGET_GROUP_ARN}"'",
-          "Weight":0
+          "TargetGroupArn": "${GREEN_TARGET_GROUP_ARN}",
+          "Weight": 0
         }
       ]
-    }'
+    }
+  }
+]
+EOF
 
-    echo "Traffic switched to BLUE"
+aws elbv2 modify-listener \
+  --listener-arn "${ALB_LISTENER_ARN}" \
+  --default-actions file://action.json
+
+echo "Traffic switched to BLUE"
 
 else
 
@@ -63,3 +81,5 @@ else
     exit 1
 
 fi
+
+rm -f action.json
