@@ -7,6 +7,11 @@ pipeline {
         AWS_REGION = "ap-south-1"
         APP_NAME = "cloud-native-cicd-app"
 
+        ALB_LISTENER_ARN = "arn:aws:elasticloadbalancing:ap-south-1:606639293354:listener/app/cloud-native-cicd-alb/63978839430bf6dd/f1c1d32cc81ec141"
+
+        BLUE_TARGET_GROUP_ARN = "arn:aws:elasticloadbalancing:ap-south-1:606639293354:targetgroup/cloud-native-cicd-blue/847d5087d082ab09"
+
+        GREEN_TARGET_GROUP_ARN = "arn:aws:elasticloadbalancing:ap-south-1:606639293354:targetgroup/cloud-native-cicd-green/61c4e3fa24f7deb3"
     }
 
     stages {
@@ -19,36 +24,11 @@ pipeline {
             }
         }
 
-        stage('Load Terraform Outputs') {
+        stage('Prepare Scripts') {
 
             steps {
 
-                script {
-
-                    env.ALB_LISTENER_ARN = sh(
-                        script: '''
-                        terraform -chdir=infrastructure/terraform output -raw alb_listener_arn
-                        ''',
-                        returnStdout: true
-                    ).trim()
-
-                    env.BLUE_TARGET_GROUP_ARN = sh(
-                        script: '''
-                        terraform -chdir=infrastructure/terraform output -raw blue_target_group_arn
-                        ''',
-                        returnStdout: true
-                    ).trim()
-
-                    env.GREEN_TARGET_GROUP_ARN = sh(
-                        script: '''
-                        terraform -chdir=infrastructure/terraform output -raw green_target_group_arn
-                        ''',
-                        returnStdout: true
-                    ).trim()
-
-                    echo "Terraform outputs loaded"
-                    echo "ALB Listener ARN: ${env.ALB_LISTENER_ARN}"
-                }
+                sh 'chmod +x jenkins/scripts/*.sh'
             }
         }
 
@@ -56,10 +36,7 @@ pipeline {
 
             steps {
 
-                sh '''
-                    chmod +x jenkins/scripts/*.sh
-                    ./jenkins/scripts/build.sh
-                '''
+                sh './jenkins/scripts/build.sh'
             }
         }
 
@@ -94,13 +71,7 @@ pipeline {
 
             steps {
 
-                sh '''
-                    export ALB_LISTENER_ARN=${ALB_LISTENER_ARN}
-                    export BLUE_TARGET_GROUP_ARN=${BLUE_TARGET_GROUP_ARN}
-                    export GREEN_TARGET_GROUP_ARN=${GREEN_TARGET_GROUP_ARN}
-
-                    ./jenkins/scripts/traffic.sh green
-                '''
+                sh './jenkins/scripts/traffic.sh green'
             }
         }
     }
@@ -116,13 +87,7 @@ pipeline {
 
             sh './jenkins/scripts/deploy.sh blue'
 
-            sh '''
-                export ALB_LISTENER_ARN=${ALB_LISTENER_ARN}
-                export BLUE_TARGET_GROUP_ARN=${BLUE_TARGET_GROUP_ARN}
-                export GREEN_TARGET_GROUP_ARN=${GREEN_TARGET_GROUP_ARN}
-
-                ./jenkins/scripts/traffic.sh blue
-            '''
+            sh './jenkins/scripts/traffic.sh blue'
 
             sh './jenkins/scripts/notify.sh FAILURE'
         }
