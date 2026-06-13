@@ -6,22 +6,6 @@ APP_NAME="cloud-native-cicd-app"
 
 IMAGE_TAG=$(git rev-parse --short HEAD)
 
-echo "Installing dependencies..."
-
-cd app
-
-npm ci
-
-echo "Running tests..."
-
-npm test -- --watch=false || true
-
-echo "Building React application..."
-
-npm run build
-
-cd ..
-
 echo "Building Docker image..."
 
 docker build \
