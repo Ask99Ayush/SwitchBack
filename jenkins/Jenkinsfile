@@ -73,20 +73,6 @@ stages {
         }
     }
 
-    stage('Manual Approval') {
-
-        steps {
-
-            timeout(time: 10, unit: 'MINUTES') {
-
-                input(
-                    message: 'Green environment validated. Switch production traffic?',
-                    ok: 'Deploy'
-                )
-            }
-        }
-    }
-
     stage('Switch Traffic To Green') {
 
         steps {
@@ -115,17 +101,14 @@ post {
 
         sh '''
             ./jenkins/scripts/deploy.sh blue || true
-            ./jenkins/scripts/traffic.sh blue || true
-            ./jenkins/scripts/notify.sh FAILURE || true
         '''
-    }
-
-    aborted {
-
-        echo "Deployment approval rejected or timed out."
 
         sh '''
-            ./jenkins/scripts/notify.sh ABORTED || true
+            ./jenkins/scripts/traffic.sh blue || true
+        '''
+
+        sh '''
+            ./jenkins/scripts/notify.sh FAILURE || true
         '''
     }
 
@@ -137,6 +120,5 @@ post {
         )
     }
 }
-
 
 }
