@@ -8,7 +8,7 @@ IMAGE_TAG=$(git rev-parse --short HEAD)
 
 echo "Installing dependencies..."
 
-cd app/react-app
+cd app
 
 npm ci
 
@@ -20,7 +20,7 @@ echo "Building React application..."
 
 npm run build
 
-cd ../..
+cd ..
 
 echo "Building Docker image..."
 
@@ -30,8 +30,7 @@ app/
 
 echo "Running Trivy Scan..."
 
-trivy image \
-${APP_NAME}:${IMAGE_TAG}
+trivy image ${APP_NAME}:${IMAGE_TAG}
 
 ACCOUNT_ID=$(aws sts get-caller-identity \
 --query Account \
@@ -41,10 +40,9 @@ ECR_URI=${ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/${APP_NAME}
 
 echo "Logging into ECR..."
 
-aws ecr get-login-password \
-| docker login \
+aws ecr get-login-password | docker login \
 --username AWS \
---password-stdin ${ECR_URI}
+--password-stdin ${ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com
 
 docker tag \
 ${APP_NAME}:${IMAGE_TAG} \
@@ -52,9 +50,8 @@ ${ECR_URI}:${IMAGE_TAG}
 
 echo "Pushing image..."
 
-docker push \
-${ECR_URI}:${IMAGE_TAG}
+docker push ${ECR_URI}:${IMAGE_TAG}
 
 echo "${IMAGE_TAG}" > image-tag.txt
 
-echo "Build completed"
+echo "Build completed successfully"
