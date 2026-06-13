@@ -49,9 +49,13 @@ NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
 echo "New task definition:"
 echo "${NEW_TASK_DEF_ARN}"
 
+echo "Updating ECS service..."
+
 aws ecs update-service \
---cluster cloud-native-cicd-cluster \
---service cloud-native-cicd-${ENVIRONMENT} \
---task-definition "${NEW_TASK_DEF_ARN}"
+  --cluster cloud-native-cicd-cluster \
+  --service cloud-native-cicd-${ENVIRONMENT} \
+  --task-definition "${NEW_TASK_DEF_ARN}" \
+  --desired-count 1 \
+  --force-new-deployment
 
 echo "${ENVIRONMENT} deployment completed"
