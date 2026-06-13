@@ -6,6 +6,8 @@ pipeline {
         timestamps()
         disableConcurrentBuilds()
         timeout(time: 30, unit: 'MINUTES')
+        skipDefaultCheckout(true)
+
         buildDiscarder(logRotator(
             numToKeepStr: '20',
             artifactNumToKeepStr: '10'
@@ -36,41 +38,31 @@ pipeline {
 
         stage('Prepare Scripts') {
             steps {
-                sh '''
-                    chmod +x jenkins/scripts/*.sh
-                '''
+                sh 'chmod +x jenkins/scripts/*.sh'
             }
         }
 
         stage('Build, Scan & Push') {
             steps {
-                sh '''
-                    ./jenkins/scripts/build.sh
-                '''
+                sh './jenkins/scripts/build.sh'
             }
         }
 
         stage('Deploy Green') {
             steps {
-                sh '''
-                    ./jenkins/scripts/deploy.sh green
-                '''
+                sh './jenkins/scripts/deploy.sh green'
             }
         }
 
         stage('Validate Green') {
             steps {
-                sh '''
-                    ./jenkins/scripts/validate.sh green
-                '''
+                sh './jenkins/scripts/validate.sh green'
             }
         }
 
         stage('Switch Traffic To Green') {
             steps {
-                sh '''
-                    ./jenkins/scripts/traffic.sh green
-                '''
+                sh './jenkins/scripts/traffic.sh green'
             }
         }
     }
@@ -81,26 +73,18 @@ pipeline {
 
             echo "Deployment completed successfully"
 
-            sh '''
-                ./jenkins/scripts/notify.sh SUCCESS
-            '''
+            sh './jenkins/scripts/notify.sh SUCCESS'
         }
 
         failure {
 
             echo "Pipeline failed. Rolling traffic back to BLUE."
 
-            sh '''
-                ./jenkins/scripts/deploy.sh blue || true
-            '''
+            sh './jenkins/scripts/deploy.sh blue || true'
 
-            sh '''
-                ./jenkins/scripts/traffic.sh blue || true
-            '''
+            sh './jenkins/scripts/traffic.sh blue || true'
 
-            sh '''
-                ./jenkins/scripts/notify.sh FAILURE || true
-            '''
+            sh './jenkins/scripts/notify.sh FAILURE || true'
         }
 
         always {
