@@ -40,8 +40,11 @@ do
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://${ALB_DNS}")
 
     if [ "$STATUS" = "200" ]; then
-        echo "Application validation successful"
-        exit 0
+    #     echo "Application validation successful"
+    #     exit 0
+    # fi
+        echo "FORCED VALIDATION FAILURE FOR ROLLBACK TEST"
+        exit 1
     fi
 
     echo "Attempt ${i}/10 failed (HTTP ${STATUS})"
