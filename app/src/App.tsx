@@ -209,7 +209,7 @@ function Page() {
         <div id="home" className="pt-32 pb-16 text-center">
           <div style={{ fontFamily: 'JetBrains Mono, monospace' }} className="inline-flex items-center gap-2 border border-emerald-500/25 bg-emerald-500/8 text-emerald-400 text-[11px] tracking-[0.12em] uppercase px-4 py-1.5 rounded-full mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Production-Grade CI/CD Platform V1
+            Production-Grade CI/CD Platform V2
           </div>
 
           <h1 style={{ fontFamily: 'Syne, sans-serif' }} className={`font-extrabold text-[clamp(38px,7vw,68px)] leading-[1.02] tracking-tight mb-5 ${text}`}>
