@@ -98,4 +98,10 @@ resource "aws_lb_listener" "http" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      default_action
+    ]
+  }
 }
