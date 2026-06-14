@@ -76,3 +76,64 @@ module "ecs" {
 
   green_target_group_arn = module.alb.green_target_group_arn
 }
+
+module "cloudfront" {
+
+  source = "../modules/cloudfront"
+
+  project_name = "cloud-native-cicd"
+
+  alb_dns_name = module.alb.alb_dns_name
+}
+
+module "cloudwatch" {
+
+  source = "../modules/cloudwatch"
+
+  project_name = "cloud-native-cicd"
+
+  ecs_cluster_name = module.ecs.cluster_name
+
+  blue_service_name = module.ecs.blue_service_name
+
+  green_service_name = module.ecs.green_service_name
+
+  alb_arn_suffix = module.alb.alb_arn_suffix
+
+  cloudfront_distribution_id = module.cloudfront.distribution_id
+
+  aws_region = var.aws_region
+}
+
+module "sns" {
+
+  source = "../modules/sns"
+
+  project_name = "cloud-native-cicd"
+
+  notification_email = var.notification_email
+
+  ecs_cluster_name = module.ecs.cluster_name
+
+  blue_service_name = module.ecs.blue_service_name
+
+  green_service_name = module.ecs.green_service_name
+
+  alb_arn_suffix = module.alb.alb_arn_suffix
+
+  cloudfront_distribution_id = module.cloudfront.distribution_id
+}
+
+module "autoscaling" {
+
+  source = "../modules/autoscaling"
+
+  project_name = "cloud-native-cicd"
+
+  ecs_cluster_name = module.ecs.cluster_name
+
+  blue_service_name = module.ecs.blue_service_name
+
+  green_service_name = module.ecs.green_service_name
+}
+

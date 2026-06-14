@@ -82,3 +82,23 @@ output "green_target_group_arn" {
   description = "Green Target Group ARN"
   value       = module.alb.green_target_group_arn
 }
+
+output "dashboard_name" {
+  value = module.cloudwatch.dashboard_name
+}
+
+output "application_log_group" {
+  value = module.cloudwatch.log_group_name
+}
+
+output "sns_topic_arn" {
+  value = module.sns.sns_topic_arn
+}
+
+output "cloudfront_url" {
+  value = module.cloudfront.cloudfront_domain_name
+}
+
+output "cloudfront_distribution_id" {
+  value = module.cloudfront.distribution_id
+}
