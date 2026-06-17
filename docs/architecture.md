@@ -10,11 +10,7 @@ The platform automates infrastructure provisioning, application deployment, moni
 
 ## Architecture Diagram
 
-Replace with final architecture diagram.
-
-```text
-docs/screenshots/architecture-diagram.png
-```
+![Architecture Diagram](../assets/architecture-diagram.png)
 
 ---
 
